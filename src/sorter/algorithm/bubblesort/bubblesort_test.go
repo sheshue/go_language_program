@@ -20,7 +20,7 @@ func TestBubbleSort2(t *testing.T) {
 	}
 }
 
-func TestBubbleSort2(t *testing.T) {
+func TestBubbleSort3`(t *testing.T) {
 	values := []int{5}
 	BubbleSort(values)
 	if values[0] != 5 {

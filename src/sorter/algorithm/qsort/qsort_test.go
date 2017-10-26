@@ -15,7 +15,7 @@ func TestQuickSort1(t *testing.T) {
 func TestQuickSort2(t *testing.T) {
 	values := []int{5, 5, 3, 2, 1}
 	QuickSort(values)
-	if values[0] != 1 || values[1] != 2 || values[2] != 3 || values[3] != 4 || values[4] != 5 {
+	if values[0] != 1 || values[1] != 2 || values[2] != 3 || values[3] != 5 || values[4] != 5 {
 		t.Error("QuickSort() failed. got", values, "expected 12355")
 	}
 }

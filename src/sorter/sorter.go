@@ -16,8 +16,8 @@ import (
 	"strconv"
 	"time"
 
-	"algorithm/bubblesort"
-	"algorithm/qsort"
+	"sorter/algorithm/bubblesort"
+	"sorter/algorithm/qsort"
 )
 
 var infile *string = flag.String("i", "infile", "file contains values for sorting")
