@@ -16,15 +16,17 @@ func NewIpcClient(server *IpcServer) *IpcClient {
 func (client *IpcClient) Call(method, params string) (resp *Response, err error) {
 	req := &Request{method, params}
 	var b []byte
+	var resp1 Response
+	var resp2 Response
 	b, err = json.Marshal(req)
 	if err != nil {
+		resp = &resp1
 		return
 	}
 	client.conn <- string(b)
 	str := <-client.conn //等待返回值
-	var resp1 Response
-	err = json.Unmarshal([]byte(str), &resp1)
-	resp = &resp1
+	err = json.Unmarshal([]byte(str), &resp2)
+	resp = &resp2
 	return
 }
 

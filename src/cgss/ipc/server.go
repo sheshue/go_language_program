@@ -30,7 +30,7 @@ type IpcServer struct {
 func NewIpcServer(server Server) *IpcServer {
 	return &IpcServer{server}
 }
-func (Server *IpcServer) Connect() chan string {
+func (server *IpcServer) Connect() chan string {
 	session := make(chan string, 0)
 	go func(c chan string) {
 		for {

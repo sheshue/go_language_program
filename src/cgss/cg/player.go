@@ -5,7 +5,7 @@ import (
 )
 
 type Player struct {
-	Name  sting         "name"
+	Name  string        "name"
 	Level int           "level"
 	Exp   int           "exp"
 	Room  int           "room"

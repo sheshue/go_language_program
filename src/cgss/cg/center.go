@@ -1,4 +1,4 @@
-package cgss
+package cg
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 )
 
 var _ ipc.Server = &CenterServer{} //确认实现了Server接口
-
+type Room struct{}
 type Message struct {
 	From    string "from"
 	To      string "to"
@@ -24,7 +24,7 @@ type CenterServer struct {
 
 func NewCenterServer() *CenterServer {
 	servers := make(map[string]ipc.Server)
-	players := make([]Player, 0)
+	players := make([]*Player, 0)
 	return &CenterServer{servers: servers, players: players}
 }
 func (server *CenterServer) addPlayer(params string) error {
@@ -108,12 +108,13 @@ func (server *CenterServer) Handle(method, params string) *ipc.Response {
 	case "broadcast":
 		err := server.broadcast(params)
 		if err != nil {
-			return &ipc.Response{Code: err.Error()}\
+			return &ipc.Response{Code: err.Error()}
 		}
 		return &ipc.Response{Code: "200"}
 	default:
 		return &ipc.Response{Code: "404", Body: method + ":" + params}
 	}
+	return &ipc.Response{Code: "200"}
 }
 
 func (server *CenterServer) Name() string {

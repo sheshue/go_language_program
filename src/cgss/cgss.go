@@ -25,6 +25,7 @@ func Help(args []string) int {
         Commands:
             login <username><level><exp>
             logout <username>
+            send <message>
             listplayer
             quit(q)
             help(h)
@@ -46,5 +47,83 @@ func Logout(args []string) int {
 }
 
 func Login(args []string) int {
+	if len(args) != 4 {
+		fmt.Println("USAGE: login <username><level><exp>")
+		return 0
+	}
+	level, err := strconv.Atoi(args[2])
+	if err != nil {
+		fmt.Println("invalid parameter: <level> should be an integer.")
+		return 0
+	}
+	exp, err := strconv.Atoi(args[3])
+	if err != nil {
+		fmt.Println("invalid parameter: <exp> should be an integer.")
+		return 0
+	}
+	player := cg.NewPlayer()
+	player.Name = args[1]
+	player.Level = level
+	player.Exp = exp
+	err = centerClient.AddPlayer(player)
+	if err != nil {
+		fmt.Println("failed adding player", err)
+	}
+	return 0
+}
 
+func ListPlayer(args []string) int {
+	ps, err := centerClient.ListPlayer("")
+	if err != nil {
+		fmt.Println("failed.", err)
+	} else {
+		for i, v := range ps {
+			fmt.Println(i+1, ":", v)
+		}
+	}
+	return 0
+}
+
+func Send(args []string) int {
+	message := strings.Join(args[1:], " ")
+	err := centerClient.Broadcast(message)
+	if err != nil {
+		fmt.Println("failed.", err)
+	}
+	return 0
+}
+
+func GetCommandHandlers() map[string]func(args []string) int {
+	return map[string]func([]string) int{
+		"help":       Help,
+		"h":          Help,
+		"quit":       Quit,
+		"q":          Quit,
+		"login":      Login,
+		"logout":     Logout,
+		"listplayer": ListPlayer,
+		"send":       Send,
+	}
+}
+
+func main() {
+	fmt.Println("casual game server solution")
+	startCenterService()
+	Help(nil)
+	r := bufio.NewReader(os.Stdin)
+	handlers := GetCommandHandlers()
+	for { // 循环读取用户输入
+		fmt.Print("command> ")
+		b, _, _ := r.ReadLine()
+		line := string(b)
+		tokens := strings.Split(line, " ")
+		if handlers, ok := handlers[tokens[0]]; ok {
+			ret := handlers(tokens)
+			if ret != 0 {
+				break
+			}
+		} else {
+			fmt.Printf("unknown command: ", tokens[0])
+		}
+	}
 }
