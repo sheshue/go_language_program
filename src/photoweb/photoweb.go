@@ -14,11 +14,11 @@ const (
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		io.WriteString(w, "<form method=\"POST\" action=\"/upload\" "+
+		io.WriteString(w, "<html><form method=\"POST\" action=\"/upload\" "+
 			" enctype=\"multipart/form-data\">"+
 			"Choose an image to upload: <input name=\"image\" type=\"file\" />"+
-			"<input type \"submit\" value=\"upload\" />"+
-			"</form>")
+			"<input type =\"submit\" value=\"upload\" />"+
+			"</form></html>")
 		return
 	}
 	if r.Method == "POST" {
@@ -55,17 +55,17 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
-	fileInfoArr, err := ioutil.ReadDir(UPLOAD_DIR)
+	fileInfoArr, err := ioutil.ReadDir("./uploads")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	var listHtml string
 	for _, fileInfo := range fileInfoArr {
-		imgid := fileInfo.Name
-		listHtml += "<li><a href=\"/view?id=" + imgid + "\">" + imgid + "</a></li>"
+		imgid := fileInfo.Name()
+		listHtml += "<li><a href=\"/view?id=" + string(imgid) + "\">imgid</a></li>"
 	}
-	io.WriteString(w, "<ol>"+listHtml+"</ol>")
+	io.WriteString(w, "<html><ol>"+listHtml+"</ol></html>")
 }
 
 func isExists(path string) bool {
@@ -80,7 +80,7 @@ func main() {
 	http.HandleFunc("/", listHandler)
 	http.HandleFunc("/view", viewHandler)
 	http.HandleFunc("/upload", uploadHandler)
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8090", nil)
 	if err != nil {
 		log.Fatal("listenandserve:", err.Error())
 	}
