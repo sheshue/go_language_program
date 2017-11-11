@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
