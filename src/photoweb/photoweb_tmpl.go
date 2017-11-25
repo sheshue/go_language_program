@@ -10,31 +10,26 @@ import (
 )
 
 const (
-	UPLOAD_DIR = "./uploads"
+	UPLOAD_DIR   = "./uploads"
+	TEMPLATE_DIR = "./views"
 )
+
+var templates = make(map[string]*template.Template)
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		if err := randerHtml(w, "upload", nil); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		err := renderHtml(w, "upload", nil)
+		check(err)
 		t.Execute(w, nil)
 		return
 	}
 	if r.Method == "POST" {
 		f, h, err := r.FormFile("image")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		check(err)
 		filename := h.Filename
 		defer f.Close()
 		t, err := os.Create(UPLOAD_DIR + "/" + filename)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		check(err)
 		defer t.Close()
 		if _, err := io.Copy(t, f); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -57,10 +52,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
 	fileInfoArr, err := ioutil.ReadDir("./uploads")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	check(err)
 	locals := make(map[string]interface{})
 	images := []string{}
 	for _, fileInfo := range fileInfoArr {
@@ -68,21 +60,13 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	locals["images"] = images
 	t, err := template.ParseFiles("list.html")
-	if err := renderHtml(w, "list", locals); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	check(err)
 	t.Execute(w, locals)
 	return
 }
 
 func renderHtml(w http.ResponseWriter, tmpl string, locals map[string]interface{}) (err error) {
-	t, err = template.ParseFiles(tmpl + ".html")
-	if err != nil {
-		return
-	}
-	err = t.Execute(w, locals)
-	return
+	err = temlates[tmpl].Excecute(w, locals)
 }
 func isExists(path string) bool {
 	_, err := os.Stat(path)
@@ -103,7 +87,22 @@ func main() {
 }
 
 func init() {
-
+	fileInfoArr, err := ioutil.ReadDir(TEMPLATE_DIR)
+	if err != nil {
+		panic(err)
+		return
+	}
+	var templateName, templatePath string
+	for _, fileInfo := range fileInfoArr {
+		templateName = fileInfo.Name()
+		if ext := path.Ext(templateName); ext != ".html" {
+			continue
+		}
+		templatePath = TEMPLATE_DIR + "/" + templateName
+		log.Println("loading template:", templatePath)
+		t := template.Must(template.ParseFiles(templatePath))
+		templates[tmpl] = t
+	}
 }
 
 func check(err error) {
